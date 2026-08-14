@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title><%= board.title %> · Retro Board</title>
+  <%- include('partials/head') %>
+</head>
+<body>
+  <%- include('partials/nav') %>
+
+  <main class="board-page">
+    <div class="board-header">
+      <div>
+        <a href="/" class="back-link">&larr; All retros</a>
+        <h1><%= board.title %></h1>
+        <p class="board-header-meta">
+          Created by <%= board.creator_name %> on
+          <%= new Date(board.created_at).toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' }) %>
+          <span class="live-indicator" title="Live collaboration is on"><span class="live-dot"></span> Live</span>
+        </p>
+      </div>
+      <% if (isCreator) { %>
+        <form action="/boards/<%= board.id %>/delete" method="POST"
+              onsubmit="return confirm('Delete this entire board and all its cards? This cannot be undone.');">
+          <button type="submit" class="btn btn-ghost btn-danger">Delete board</button>
+        </form>
+      <% } %>
+    </div>
+
+    <div class="columns" id="columns">
+      <% columns.forEach(function(col) { %>
+        <section class="column" data-column-id="<%= col.id %>">
+          <div class="column-header" style="border-top-color: <%= col.color %>">
+            <h2><%= col.title %></h2>
+            <span class="column-count"><%= cards.filter(function(c){ return c.column_id === col.id; }).length %></span>
+          </div>
+
+          <div class="card-list" data-column-id="<%= col.id %>">
+            <% cards.filter(function(c){ return c.column_id === col.id; }).forEach(function(card) { %>
+              <div class="sticky-card" draggable="true" data-card-id="<%= card.id %>" style="background: <%= card.color %>">
+                <div class="sticky-card-content"><%= card.content %></div>
+                <div class="sticky-card-footer">
+                  <span class="sticky-card-author"><%= card.author_name %></span>
+                  <div class="sticky-card-actions">
+                    <button class="vote-btn <%= card.voted_by_me ? 'voted' : '' %>" data-card-id="<%= card.id %>" title="Vote">
+                      👍 <span class="vote-count"><%= card.vote_count %></span>
+                    </button>
+                    <button class="delete-card-btn" data-card-id="<%= card.id %>" data-author-id="<%= card.author_id %>" title="Delete card">✕</button>
+                  </div>
+                </div>
+              </div>
+            <% }); %>
+          </div>
+
+          <button class="add-card-btn" data-column-id="<%= col.id %>">+ Add a card</button>
+        </section>
+      <% }); %>
+    </div>
+  </main>
+
+  <template id="cardTemplate">
+    <div class="sticky-card" draggable="true">
+      <div class="sticky-card-content"></div>
+      <div class="sticky-card-footer">
+        <span class="sticky-card-author"></span>
+        <div class="sticky-card-actions">
+          <button class="vote-btn" title="Vote">👍 <span class="vote-count">0</span></button>
+          <button class="delete-card-btn" title="Delete card">✕</button>
+        </div>
+      </div>
+    </div>
+  </template>
+
+  <script>
+    window.__BOARD__ = {
+      id: <%- JSON.stringify(board.id) %>,
+      isCreator: <%- JSON.stringify(isCreator) %>,
+      currentUserId: <%- JSON.stringify(typeof currentUser !== 'undefined' && currentUser ? currentUser.id : null) %>,
+      currentUserName: <%- JSON.stringify(typeof currentUser !== 'undefined' && currentUser ? currentUser.name : '') %>,
+      cardColors: ['#fef08a', '#bbf7d0', '#bfdbfe', '#fbcfe8', '#fed7aa', '#ddd6fe'],
+    };
+  </script>
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="/js/board.js"></script>
+</body>
+</html>

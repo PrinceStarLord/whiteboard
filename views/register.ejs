@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>Sign up · Retro Board</title>
+  <%- include('partials/head') %>
+</head>
+<body>
+  <div class="auth-page">
+    <div class="auth-card">
+      <div class="auth-brand">🗒️ <span>Retro Board</span></div>
+      <h1>Create your account</h1>
+      <p class="auth-subtitle">Set up retros your whole team can revisit anytime.</p>
+
+      <% if (error) { %>
+        <div class="alert alert-error"><%= error %></div>
+      <% } %>
+
+      <form method="POST" action="/register" class="auth-form">
+        <label>
+          Name
+          <input type="text" name="name" required autofocus value="<%= name %>" placeholder="Jane Doe" />
+        </label>
+        <label>
+          Email
+          <input type="email" name="email" required value="<%= email %>" placeholder="you@company.com" />
+        </label>
+        <label>
+          Password
+          <input type="password" name="password" required minlength="6" placeholder="At least 6 characters" />
+        </label>
+        <button type="submit" class="btn btn-primary btn-full">Create account</button>
+      </form>
+
+      <p class="auth-switch">Already have an account? <a href="/login">Log in</a></p>
+    </div>
+  </div>
+</body>
+</html>

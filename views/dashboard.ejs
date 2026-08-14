@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>Dashboard · Retro Board</title>
+  <%- include('partials/head') %>
+</head>
+<body>
+  <%- include('partials/nav') %>
+
+  <main class="page">
+    <div class="page-header">
+      <div>
+        <h1>Your retros</h1>
+        <p class="page-subtitle">Every past retro lives here — create a new one whenever your team needs it.</p>
+      </div>
+      <button class="btn btn-primary" id="newBoardBtn">+ New Retro</button>
+    </div>
+
+    <% if (!boards.length) { %>
+      <div class="empty-state">
+        <div class="empty-state-icon">🪴</div>
+        <h2>No retros yet</h2>
+        <p>Create your first retro board to get your team reflecting.</p>
+        <button class="btn btn-primary" id="newBoardBtnEmpty">+ New Retro</button>
+      </div>
+    <% } else { %>
+      <div class="board-grid">
+        <% boards.forEach(function(board) { %>
+          <div class="board-card">
+            <a class="board-card-link" href="/boards/<%= board.id %>">
+              <div class="board-card-swatch" style="background: <%= (templates[board.template] || {}).columns ? templates[board.template].columns[0].color : '#e2e8f0' %>"></div>
+              <div class="board-card-body">
+                <h3><%= board.title %></h3>
+                <p class="board-card-template"><%= (templates[board.template] || {}).label || 'Custom' %></p>
+                <div class="board-card-meta">
+                  <span><%= board.card_count %> card<%= board.card_count == 1 ? '' : 's' %></span>
+                  <span>&middot;</span>
+                  <span><%= new Date(board.created_at).toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' }) %></span>
+                </div>
+                <div class="board-card-creator">by <%= board.creator_name %></div>
+              </div>
+            </a>
+            <% if (board.created_by === currentUserId) { %>
+              <form action="/boards/<%= board.id %>/delete" method="POST" class="board-card-delete"
+                    onsubmit="return confirm('Delete &quot;<%= board.title.replace(/"/g, '') %>&quot;? This cannot be undone.');">
+                <button type="submit" class="btn-icon" title="Delete board">🗑️</button>
+              </form>
+            <% } %>
+          </div>
+        <% }); %>
+      </div>
+    <% } %>
+  </main>
+
+  <div class="modal-overlay" id="newBoardModal" hidden>
+    <div class="modal">
+      <h2>Create a new retro</h2>
+      <form method="POST" action="/boards" class="board-form">
+        <label>
+          Title
+          <input type="text" name="title" placeholder="Sprint 24 Retro" required autofocus />
+        </label>
+
+        <div class="template-picker">
+          <% var first = true; %>
+          <% Object.keys(templates).forEach(function(key) { %>
+            <label class="template-option">
+              <input type="radio" name="template" value="<%= key %>" <%= first ? 'checked' : '' %> />
+              <span class="template-option-card">
+                <strong><%= templates[key].label %></strong>
+                <small><%= templates[key].description %></small>
+              </span>
+            </label>
+            <% first = false; %>
+          <% }); %>
+        </div>
+
+        <div class="modal-actions">
+          <button type="button" class="btn btn-ghost" id="cancelNewBoard">Cancel</button>
+          <button type="submit" class="btn btn-primary">Create retro</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script src="/js/dashboard.js"></script>
+</body>
+</html>
