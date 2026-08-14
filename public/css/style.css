@@ -184,6 +184,9 @@ button { font-family: inherit; cursor: pointer; }
 .board-card-delete { position: absolute; top: 6px; right: 6px; }
 
 /* ---------- Modal ---------- */
+.modal-overlay[hidden] {
+  display: none;
+}
 .modal-overlay {
   position: fixed;
   inset: 0;
